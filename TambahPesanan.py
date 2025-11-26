@@ -81,6 +81,8 @@ class FormPesanan(object):
         self.label_11.setGeometry(QtCore.QRect(340, 310, 91, 16))
         self.label_11.setObjectName("label_11")
         self.spinBox = QtWidgets.QSpinBox(parent=Dialog)
+        self.spinBox.setMaximum(999999999)
+
         self.spinBox.setGeometry(QtCore.QRect(440, 310, 111, 22))
         self.spinBox.setObjectName("spinBox")
 
