@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
     
     def open_new_window(self):
         self.child_window = User.show_users()
+        self.child_window.data_edit.connect(self.update_list_pelanggan)
         self.child_window.show()
     
     def menu(self):
@@ -96,6 +97,7 @@ class MainWindow(QMainWindow):
         self.child_window = show_pesanan(parent=self)
         self.child_window.data_added.connect(self.update_query)
         self.child_window.show()
+        
     def update_query(self):
         sql = """
             SELECT users.nama, penjahit.nama_penjahit,baju.panjang_lengan, baju.lingkar_pinggang, baju.lingkar_dada,
@@ -121,21 +123,24 @@ class MainWindow(QMainWindow):
 
         basedir = os.path.dirname(__file__)
 
-        db = QSqlDatabase("QSQLITE")
-        db.setDatabaseName(os.path.join(basedir, "penjahit.sqlite"))
-        db.open()
-
+        self.db = QSqlDatabase("QSQLITE")
+        self.db.setDatabaseName(os.path.join(basedir, "penjahit.sqlite"))
+        self.db.open()
         self.table_pelanggan = QTableView()
-        self.model_pelanggan = QSqlTableModel(db=db)
+        self.model_pelanggan = QSqlTableModel(db=self.db)
         self.model_pelanggan.setTable("users")
-        self.model_pelanggan.select()
-
+        self.update_list_pelanggan()
         self.table_pelanggan.setModel(self.model_pelanggan)
         layout_view.addWidget(self.table_pelanggan)
 
         container.setLayout(layout_view)
         self.setCentralWidget(container)
+        self.child_window = None
         return container
+    
+    def update_list_pelanggan(self):
+        
+        self.model_pelanggan.select()
     
     def penjahit(self):
         container = QWidget()
@@ -175,11 +180,8 @@ class MainWindow(QMainWindow):
             """SELECT * FROM penjahit
             """
         )
-        # self.update_query()
 
         self.setMinimumSize(QSize(1024, 600))
-        # self.setCentralWidget(container)
-        # return container
         return container
 
 app = QApplication(sys.argv)

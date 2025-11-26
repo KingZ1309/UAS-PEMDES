@@ -1,5 +1,5 @@
 from detailPelanggan import Ui_Dialog as detail
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt,pyqtSignal
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from PyQt6.QtWidgets import (
     QApplication,
@@ -13,9 +13,12 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton
 )
+import os
 import sys
+basedir = os.path.dirname(__file__)
 
 class show_users(QMainWindow, detail):
+    data_edit = pyqtSignal()
     recno = 0
     def __init__(self):
         super().__init__()
@@ -43,7 +46,6 @@ class show_users(QMainWindow, detail):
         self.lineEdit.setText(str(self.record.value("nama")))
         self.lineEdit_2.setText(str(self.record.value("telp")))
         self.textEdit.setText(str(self.record.value("alamat"))) 
-        print(show_users.recno)  
     def dispFirst(self):
         show_users.recno = 0
         self.displayRec()
@@ -62,9 +64,24 @@ class show_users(QMainWindow, detail):
         self.displayRec()
     
     def edit(self):
-        print("Button Clicked")
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    w = show_users()
-    app.exec()
+        userid = self.record.value("id_user")
+        nama = self.lineEdit.text()
+        telp = self.lineEdit_2.text()
+        alamat = self.textEdit.toPlainText()
+        
+        db = QSqlDatabase("QSQLITE")
+        db.setDatabaseName(os.path.join(basedir, "penjahit.sqlite"))
+        db.open()
+        self.query = QSqlQuery(db=db)
+        self.query.prepare("""
+            UPDATE users  
+            SET nama = :nama, telp = :telp, alamat = :alamat
+            WHERE id_user = :id;
+        """)
+        self.query.bindValue(':nama',nama)
+        self.query.bindValue(':telp',telp)
+        self.query.bindValue(':alamat',alamat)
+        self.query.bindValue(':id',userid)
+        self.query.exec()
+        self.data_edit.emit()
+        self.close()
