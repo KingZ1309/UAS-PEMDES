@@ -159,20 +159,18 @@ class MainWindow(QMainWindow):
     def penjahit(self):
         container = QWidget()
         layout_search = QHBoxLayout()
-        self.track = QLineEdit()
-        self.track.setPlaceholderText("Track name...")
-        self.track.textChanged.connect(self.update_query)
-        self.composer = QLineEdit()
-        self.composer.setPlaceholderText("Artist name...")
-        self.composer.textChanged.connect(self.update_query)
-        self.album = QLineEdit()
-        self.album.setPlaceholderText("Album name...")
-        self.album.textChanged.connect(self.update_query)
-        layout_search.addWidget(self.track)
-        layout_search.addWidget(self.composer)
-        layout_search.addWidget(self.album)
+        self.nama_penjahit = QLineEdit()
+        self.nama_penjahit.setPlaceholderText("Nama Penjahit")
+        self.nama_penjahit.textChanged.connect(self.update_query)
+        self.telp_penjahit = QLineEdit()
+        self.telp_penjahit.setPlaceholderText("No Telp Penjahit")
+        self.telp_penjahit.textChanged.connect(self.update_query)
+        layout_search.addWidget(self.nama_penjahit)
+        layout_search.addWidget(self.telp_penjahit)
         layout_view = QVBoxLayout()
         layout_view.addLayout(layout_search)
+        tambah = QPushButton("Tambah Penjahit")
+        layout_view.addWidget(tambah)
         self.table_penjahit = QTableView()
         layout_view.addWidget(self.table_penjahit)
 
@@ -181,12 +179,15 @@ class MainWindow(QMainWindow):
         self.model_penjahit = QSqlQueryModel()
         self.table_penjahit.setModel(self.model_penjahit)
 
-        self.query = QSqlQuery(db=self.db)
+        self.query_penjahit = QSqlQuery(db=self.db)
 
-        self.query.prepare(
-            """SELECT * FROM penjahit
+        self.query_penjahit.prepare(
+            """SELECT *
+            FROM penjahit
             """
         )
+        self.query_penjahit.exec()
+        self.model_penjahit.setQuery(self.query_penjahit)
 
         self.setMinimumSize(QSize(1024, 600))
         return container
