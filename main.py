@@ -138,9 +138,9 @@ class MainWindow(QMainWindow):
         btn.clicked.connect(self.open_new_window)
         tambah.clicked.connect(self.tambahPelangganForm)
         self.track = QLineEdit()
-        self.track.setPlaceholderText("Track name...")
+        self.track.setPlaceholderText("Nama Pelanggan")
         layout_view.addWidget(self.track)
-        self.track.textChanged.connect(self.update_query)
+        self.track.textChanged.connect(self.update_filter_pelanggan)
         basedir = os.path.dirname(__file__)
 
         self.db = QSqlDatabase("QSQLITE")
@@ -157,6 +157,14 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
         self.child_window = None
         return container
+    
+    def updatePelanggan(self):
+        self.model_pelanggan.select()
+    
+    def update_filter_pelanggan(self, s):
+        s = re.sub("[\W_]+", "", s)
+        filter_str = 'nama LIKE "%{}%"'.format(s)
+        self.model_pelanggan.setFilter(filter_str)
     
     def update_list_pelanggan(self):
         self.model_pelanggan.select()
