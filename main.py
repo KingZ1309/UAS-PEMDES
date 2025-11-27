@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import (
     QTabWidget,
     QLabel,
     QPushButton,
+    QGridLayout
 )
 
 
@@ -40,29 +41,31 @@ class MainWindow(QMainWindow):
         self.child_window.data_edit.connect(self.update_list_pelanggan)
         self.child_window.show()
     
+    def tambahPelangganForm(self):
+        self.child_window=User.tambahUser()
+        self.child_window.data_tambah.connect(self.update_list_pelanggan)
+        self.child_window.show()    
+        
+    
     def menu(self):
         container = QWidget()
         layout_search = QHBoxLayout()
         
-        self.track = QLineEdit()
-        self.track.setPlaceholderText("Track name...")
-        self.track.textChanged.connect(self.update_query)
+        self.nama_pelanggan = QLineEdit()
+        self.nama_pelanggan.setPlaceholderText("Nama Pelanggan")
+        self.nama_pelanggan.textChanged.connect(self.update_query)
 
-        self.composer = QLineEdit()
-        self.composer.setPlaceholderText("Artist name...")
-        self.composer.textChanged.connect(self.update_query)
+        self.nama_penjahit = QLineEdit()
+        self.nama_penjahit.setPlaceholderText("Nama Penjahit")
+        self.nama_penjahit.textChanged.connect(self.update_query)
 
-        self.album = QLineEdit()
-        self.album.setPlaceholderText("Album name...")
-        self.album.textChanged.connect(self.update_query)
 
-        layout_search.addWidget(self.track)
-        layout_search.addWidget(self.composer)
-        layout_search.addWidget(self.album)
+        layout_search.addWidget(self.nama_pelanggan)
+        layout_search.addWidget(self.nama_penjahit)
 
         layout_view = QVBoxLayout()
         layout_view.addLayout(layout_search)
-        tambah = QPushButton("Buka Window Baru")
+        tambah = QPushButton("Tambah Pesanan")
         tambah.clicked.connect(self.tambahPesananForm)
         layout_view.addWidget(tambah)
         self.table = QTableView()
@@ -73,8 +76,6 @@ class MainWindow(QMainWindow):
 
         self.model = QSqlQueryModel()
         self.table.setModel(self.model)
-
-        self.query = QSqlQuery(db=self.db)
 
         self.update_query()
         self.model.setHeaderData(2, Qt.Orientation.Horizontal, "Panjang Lengan")
@@ -90,31 +91,45 @@ class MainWindow(QMainWindow):
         self.model.setHeaderData(1, Qt.Orientation.Horizontal, "Nama Penjahit")
 
         self.setMinimumSize(QSize(1024, 600))
-        self.child_window = None
         return container
     
     def tambahPesananForm(self):
-        self.child_window = show_pesanan(parent=self)
-        self.child_window.data_added.connect(self.update_query)
-        self.child_window.show()
+        self.pesanan_window = show_pesanan(parent=self)
+        self.pesanan_window.data_added.connect(self.update_query)
+        self.pesanan_window.data_tambah.connect(self.pesanan_window.update_option)
+
+        self.pesanan_window.show()
+
         
     def update_query(self):
-        sql = """
+        nama_pelanggan = self.nama_pelanggan.text()
+        nama_penjahit = self.nama_penjahit.text()
+        self.sql = QSqlQuery(db=self.db)
+        
+        self.sql.prepare( """
             SELECT users.nama, penjahit.nama_penjahit,baju.panjang_lengan, baju.lingkar_pinggang, baju.lingkar_dada,
                 baju.lebar_bahu, baju.lingkar_pinggul, baju.panjang_baju, baju.tanggal_pesan,
                 baju.tanggal_ambil, baju.harga 
             FROM baju JOIN users ON baju.id_user = users.id_user JOIN penjahit ON baju.id_penjahit = penjahit.id_penjahit
-        """
-        self.model.setQuery(sql, self.db)
+            WHERE users.nama LIKE '%'|| :nama_pelanggan|| '%' AND penjahit.nama_penjahit LIKE '%'|| :penjahit ||'%'
+        """)
+        self.sql.bindValue(":nama_pelanggan", nama_pelanggan)
+        self.sql.bindValue(":penjahit", nama_penjahit)
+        self.sql.exec()
+        self.model.setQuery(self.sql)
 
     def pelanggan(self):
         container = QWidget()
         layout_search = QHBoxLayout()
         layout_view = QVBoxLayout()
-
-        btn = QPushButton("Buka Window Baru")
-        layout_view.addWidget(btn)
+        layout = QGridLayout()
+        btn = QPushButton("Detail Pelanggan")
+        tambah = QPushButton("Tambah Pelanggan")
+        layout.addWidget(btn,0,0)
+        layout.addWidget(tambah,0,1)
+        layout_view.addLayout(layout)
         btn.clicked.connect(self.open_new_window)
+        tambah.clicked.connect(self.tambahPelangganForm)
 
         self.track = QLineEdit()
         self.track.setPlaceholderText("Track name...")
@@ -139,34 +154,26 @@ class MainWindow(QMainWindow):
         return container
     
     def update_list_pelanggan(self):
-        
         self.model_pelanggan.select()
     
     def penjahit(self):
         container = QWidget()
         layout_search = QHBoxLayout()
-
         self.track = QLineEdit()
         self.track.setPlaceholderText("Track name...")
         self.track.textChanged.connect(self.update_query)
-
         self.composer = QLineEdit()
         self.composer.setPlaceholderText("Artist name...")
         self.composer.textChanged.connect(self.update_query)
-
         self.album = QLineEdit()
         self.album.setPlaceholderText("Album name...")
         self.album.textChanged.connect(self.update_query)
-
         layout_search.addWidget(self.track)
         layout_search.addWidget(self.composer)
         layout_search.addWidget(self.album)
-
         layout_view = QVBoxLayout()
         layout_view.addLayout(layout_search)
-
         self.table_penjahit = QTableView()
-
         layout_view.addWidget(self.table_penjahit)
 
         container.setLayout(layout_view)

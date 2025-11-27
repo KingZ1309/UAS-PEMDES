@@ -20,11 +20,17 @@ import sqlite3
 import sys
 class show_pesanan(QMainWindow, FormPesanan):
     data_added = pyqtSignal()
+    data_tambah = pyqtSignal()
     def __init__(self, parent=None):
         super().__init__()
         self.setupUi(self)
         self.show()
         self.parent_window = parent
+        self.update_option()
+        
+        self.pushButton.clicked.connect(self.tambahPesanan)
+    
+    def update_option(self):
         conn = sqlite3.connect("penjahit.sqlite")
         cur = conn.cursor()
         cur.execute("SELECT id_user, nama FROM users")
@@ -40,7 +46,6 @@ class show_pesanan(QMainWindow, FormPesanan):
             self.comboBox_2.addItem(nama, id_penjahit)
         conn.close()
         
-        self.pushButton.clicked.connect(self.tambahPesanan)
     def tambahPesanan(self):
         panjang_lengan = self.panjang_lengan.text()
         lingkar_pinggang = self.lingkar_pinggang.text()

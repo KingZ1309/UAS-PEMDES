@@ -1,4 +1,5 @@
 from detailPelanggan import Ui_Dialog as detail
+from tambahpelanggan import Ui_Dialog as tambahPelanggan
 from PyQt6.QtCore import QSize, Qt,pyqtSignal
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel
 from PyQt6.QtWidgets import (
@@ -23,8 +24,7 @@ class show_users(QMainWindow, detail):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.show()
-        
+        self.show()        
         self.db = QSqlDatabase.addDatabase('QSQLITE')
         self.db.setDatabaseName('penjahit.sqlite')
         self.db.open()
@@ -84,4 +84,33 @@ class show_users(QMainWindow, detail):
         self.query.bindValue(':id',userid)
         self.query.exec()
         self.data_edit.emit()
+        self.close()
+
+
+class tambahUser(QMainWindow, tambahPelanggan):
+    data_tambah = pyqtSignal()
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+        self.show()
+        
+        self.pushButton_5.clicked.connect(self.simpanPelanggan)
+    
+    def simpanPelanggan(self):
+        nama = self.lineEdit.text()
+        telp = self.lineEdit_2.text()
+        alamat = self.textEdit.toPlainText()
+        db = QSqlDatabase("QSQLITE")
+        db.setDatabaseName(os.path.join(basedir, "penjahit.sqlite"))
+        db.open()
+        self.query = QSqlQuery(db=db)
+        self.query.prepare("""
+            INSERT INTO users (nama, telp, alamat)  
+            VALUES(:nama,:telp,:alamat);
+        """)
+        self.query.bindValue(':nama',nama)
+        self.query.bindValue(':telp',telp)
+        self.query.bindValue(':alamat',alamat)
+        self.query.exec()
+        self.data_tambah.emit()
         self.close()
