@@ -1,6 +1,7 @@
 import os
 import sys
 import uas
+import re
 import users as User
 from Pesanan import show_pesanan
 from Penjahit import form_tambah as form_tambah_jahit
@@ -168,6 +169,7 @@ class MainWindow(QMainWindow):
         layout_search = QHBoxLayout()
         self.nama_penjahit = QLineEdit()
         self.nama_penjahit.setPlaceholderText("Nama Penjahit")
+        self.nama_penjahit.textChanged.connect(self.update_filter_penjahit)
         self.nama_penjahit.textChanged.connect(self.update_query)
         layout_search.addWidget(self.nama_penjahit)
         layout_view = QVBoxLayout()
@@ -194,6 +196,12 @@ class MainWindow(QMainWindow):
 
     def updatePenjahit(self):
         self.model_penjahit.select()
+    
+    def update_filter_penjahit(self, s):
+        s = re.sub("[\W_]+", "", s)
+        filter_str = 'nama_penjahit LIKE "%{}%"'.format(s)
+        self.model_penjahit.setFilter(filter_str)
+        
         
 app = QApplication(sys.argv)
 window = MainWindow()
