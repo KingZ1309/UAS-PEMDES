@@ -3,6 +3,7 @@ import sys
 import uas
 import users as User
 from Pesanan import show_pesanan
+from Penjahit import form_tambah as form_tambah_jahit
 from PyQt6.QtCore import QSize, Qt,pyqtSignal
        
 from PyQt6.QtSql import QSqlDatabase, QSqlQuery, QSqlQueryModel, QSqlTableModel
@@ -55,13 +56,13 @@ class MainWindow(QMainWindow):
         self.nama_pelanggan.setPlaceholderText("Nama Pelanggan")
         self.nama_pelanggan.textChanged.connect(self.update_query)
 
-        self.nama_penjahit = QLineEdit()
-        self.nama_penjahit.setPlaceholderText("Nama Penjahit")
-        self.nama_penjahit.textChanged.connect(self.update_query)
+        self.nama_penjahit_src = QLineEdit()
+        self.nama_penjahit_src.setPlaceholderText("Nama Penjahit")
+        self.nama_penjahit_src.textChanged.connect(self.update_query)
 
 
         layout_search.addWidget(self.nama_pelanggan)
-        layout_search.addWidget(self.nama_penjahit)
+        layout_search.addWidget(self.nama_penjahit_src)
 
         layout_view = QVBoxLayout()
         layout_view.addLayout(layout_search)
@@ -97,13 +98,18 @@ class MainWindow(QMainWindow):
         self.pesanan_window = show_pesanan(parent=self)
         self.pesanan_window.data_added.connect(self.update_query)
         self.pesanan_window.data_tambah.connect(self.pesanan_window.update_option)
-
         self.pesanan_window.show()
+        
+    def tambahPenjahitForm(self):
+        self.penjahit_window = form_tambah_jahit(parent=self)
+        self.penjahit_window.data_tambah.connect(self.updatePenjahit)
+        # self.penjahit_window.data_tambah.connect(self.penjahit_window.update_option)
+        self.penjahit_window.show()
 
         
     def update_query(self):
         nama_pelanggan = self.nama_pelanggan.text()
-        nama_penjahit = self.nama_penjahit.text()
+        nama_penjahit = self.nama_penjahit_src.text()
         self.sql = QSqlQuery(db=self.db)
         
         self.sql.prepare( """
@@ -130,12 +136,10 @@ class MainWindow(QMainWindow):
         layout_view.addLayout(layout)
         btn.clicked.connect(self.open_new_window)
         tambah.clicked.connect(self.tambahPelangganForm)
-
         self.track = QLineEdit()
         self.track.setPlaceholderText("Track name...")
         layout_view.addWidget(self.track)
         self.track.textChanged.connect(self.update_query)
-
         basedir = os.path.dirname(__file__)
 
         self.db = QSqlDatabase("QSQLITE")
@@ -155,6 +159,9 @@ class MainWindow(QMainWindow):
     
     def update_list_pelanggan(self):
         self.model_pelanggan.select()
+        
+    def update_list_penjahit(self):
+        self.model_pelanggan.select()
     
     def penjahit(self):
         container = QWidget()
@@ -162,36 +169,32 @@ class MainWindow(QMainWindow):
         self.nama_penjahit = QLineEdit()
         self.nama_penjahit.setPlaceholderText("Nama Penjahit")
         self.nama_penjahit.textChanged.connect(self.update_query)
-        self.telp_penjahit = QLineEdit()
-        self.telp_penjahit.setPlaceholderText("No Telp Penjahit")
-        self.telp_penjahit.textChanged.connect(self.update_query)
         layout_search.addWidget(self.nama_penjahit)
-        layout_search.addWidget(self.telp_penjahit)
         layout_view = QVBoxLayout()
         layout_view.addLayout(layout_search)
         tambah = QPushButton("Tambah Penjahit")
         layout_view.addWidget(tambah)
+        tambah.clicked.connect(self.tambahPenjahitForm)
         self.table_penjahit = QTableView()
-        layout_view.addWidget(self.table_penjahit)
 
-        container.setLayout(layout_view)
+        basedir = os.path.dirname(__file__)
 
-        self.model_penjahit = QSqlQueryModel()
+        self.db = QSqlDatabase("QSQLITE")
+        self.db.setDatabaseName(os.path.join(basedir, "penjahit.sqlite"))
+        self.db.open()
+        self.model_penjahit = QSqlTableModel(db=self.db)
+        self.model_penjahit.setTable("penjahit")
         self.table_penjahit.setModel(self.model_penjahit)
-
-        self.query_penjahit = QSqlQuery(db=self.db)
-
-        self.query_penjahit.prepare(
-            """SELECT *
-            FROM penjahit
-            """
-        )
-        self.query_penjahit.exec()
-        self.model_penjahit.setQuery(self.query_penjahit)
-
+        self.updatePenjahit()
+        layout_view.addWidget(self.table_penjahit)
+        container.setLayout(layout_view)
+        self.setCentralWidget(container)
         self.setMinimumSize(QSize(1024, 600))
         return container
 
+    def updatePenjahit(self):
+        self.model_penjahit.select()
+        
 app = QApplication(sys.argv)
 window = MainWindow()
 window.show()
