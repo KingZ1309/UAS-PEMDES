@@ -22,8 +22,6 @@ from PyQt6.QtWidgets import (
     QGridLayout
 )
 
-
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()

@@ -14,10 +14,11 @@ from PyQt6.QtWidgets import (
     QPushButton
 )
 import os
-basedir = os.path.dirname(__file__)
-
 import sqlite3
 import sys
+
+basedir = os.path.dirname(__file__)
+
 
 class form_tambah(QMainWindow, formPenjahit):
     data_added = pyqtSignal()

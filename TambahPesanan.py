@@ -23,6 +23,7 @@ class FormPesanan(object):
         self.comboBox = QtWidgets.QComboBox(parent=Dialog)
         self.comboBox.setGeometry(QtCore.QRect(180, 90, 171, 22))
         self.comboBox.setObjectName("comboBox")
+        
         self.label_2 = QtWidgets.QLabel(parent=Dialog)
         self.label_2.setGeometry(QtCore.QRect(60, 90, 61, 16))
         self.label_2.setObjectName("label_2")
@@ -53,21 +54,32 @@ class FormPesanan(object):
         self.panjang_lengan = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.panjang_lengan.setGeometry(QtCore.QRect(180, 180, 111, 22))
         self.panjang_lengan.setObjectName("panjang_lengan")
+        self.panjang_lengan.setMaximum(999999999)
         self.lingkar_pinggang = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.lingkar_pinggang.setGeometry(QtCore.QRect(180, 220, 111, 22))
         self.lingkar_pinggang.setObjectName("lingkar_pinggang")
+        self.lingkar_pinggang.setMaximum(999999999)
+        
         self.lingkar_dada = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.lingkar_dada.setGeometry(QtCore.QRect(180, 260, 111, 22))
         self.lingkar_dada.setObjectName("lingkar_dada")
+        self.lingkar_dada.setMaximum(999999999)
+        
         self.lebar_bahu = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.lebar_bahu.setGeometry(QtCore.QRect(440, 180, 111, 22))
         self.lebar_bahu.setObjectName("lebar_bahu")
+        self.lebar_bahu.setMaximum(999999999)
+        
         self.lingkar_pinggul = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.lingkar_pinggul.setGeometry(QtCore.QRect(440, 220, 111, 22))
         self.lingkar_pinggul.setObjectName("lingkar_pinggul")
+        self.lingkar_pinggul.setMaximum(999999999)
+        
         self.panjang_baju = QtWidgets.QDoubleSpinBox(parent=Dialog)
         self.panjang_baju.setGeometry(QtCore.QRect(440, 260, 111, 22))
         self.panjang_baju.setObjectName("panjang_baju")
+        self.panjang_baju.setMaximum(999999999)
+        
         self.pushButton = QtWidgets.QPushButton(parent=Dialog)
         self.pushButton.setGeometry(QtCore.QRect(440, 360, 111, 31))
         self.pushButton.setObjectName("pushButton")
@@ -82,6 +94,7 @@ class FormPesanan(object):
         self.label_11.setObjectName("label_11")
         self.spinBox = QtWidgets.QSpinBox(parent=Dialog)
         self.spinBox.setMaximum(999999999)
+        
 
         self.spinBox.setGeometry(QtCore.QRect(440, 310, 111, 22))
         self.spinBox.setObjectName("spinBox")
